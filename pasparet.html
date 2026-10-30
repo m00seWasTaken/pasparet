@@ -1,0 +1,955 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>På spåret – Sittning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --bg:#0a1430; --bg2:#101d44; --card:#152656; --card2:#1c3170; --line:#2a4185;
+  --text:#f3f5ff; --muted:#9fb0dd; --dim:#5f74ad;
+  --yellow:#ffc93c; --yellow2:#ffdf7e; --red:#e5483b; --red2:#ff6b5e; --green:#35c97a; --blue:#5aa8ff;
+  --display:"Bebas Neue",Impact,"Arial Narrow",sans-serif;
+  --body:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--body);-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.hidden{display:none!important}
+.disp{font-family:var(--display);letter-spacing:.02em;font-weight:400}
+.muted{color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4em;padding:.6em 1em;border-radius:10px;background:var(--card2);color:var(--text);font-weight:600;border:1px solid var(--line);white-space:nowrap;transition:transform .08s,background .15s}
+.btn:hover{background:#25408c}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--yellow);color:#1a1300;border-color:var(--yellow)}
+.btn.primary:hover{background:var(--yellow2)}
+.btn.danger{background:var(--red);border-color:var(--red);color:#fff}
+.btn.danger:hover{background:var(--red2)}
+.btn.ghost{background:transparent}
+.btn.on{background:var(--yellow);color:#1a1300;border-color:var(--yellow)}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.field{width:100%;padding:.8em 1em;border-radius:12px;border:2px solid var(--line);background:var(--bg2);outline:none;font-size:1.05rem}
+.field:focus{border-color:var(--yellow)}
+textarea.field{resize:vertical;line-height:1.45}
+.dot{display:inline-block;width:.6em;height:.6em;border-radius:50%;background:var(--dim);flex:none}
+.dot.ok{background:var(--green);box-shadow:0 0 8px var(--green)}
+.dot.warn{background:var(--yellow)}
+.dot.bad{background:var(--red)}
+
+/* ---------- Start ---------- */
+.start{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.start-card{width:100%;max-width:440px;text-align:center}
+.logo{font-family:var(--display);font-size:clamp(3.2rem,14vw,5.5rem);line-height:.9;color:var(--yellow);margin:0}
+.logo small{display:block;font-size:.38em;color:var(--muted);letter-spacing:.2em;margin-top:.4em}
+.start-card .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:22px;text-align:left}
+.start-card h2{margin:0 0 10px;font-size:1.05rem}
+.row{display:flex;gap:10px;align-items:center}
+.stack{display:flex;flex-direction:column;gap:10px}
+
+/* ---------- Projector ---------- */
+.proj{height:100vh;display:flex;flex-direction:column;overflow:hidden;
+  background:radial-gradient(1200px 600px at 80% -10%,#1d3480 0%,transparent 60%),radial-gradient(900px 500px at -10% 110%,#2a1850 0%,transparent 55%),var(--bg)}
+.p-head{display:flex;align-items:center;gap:2vw;padding:1.4vh 2.2vw;border-bottom:1px solid #ffffff14}
+.p-title{font-family:var(--display);font-size:clamp(1.8rem,3.4vw,3.6rem);color:var(--yellow);line-height:1;white-space:nowrap}
+.p-round{font-family:var(--display);font-size:clamp(1.4rem,2.4vw,2.6rem);color:var(--muted);letter-spacing:.06em}
+.p-join{margin-left:auto;display:flex;align-items:center;gap:1vw;background:#ffffff0d;border:1px solid #ffffff1a;border-radius:14px;padding:.6vh .8vw}
+.p-join img{width:clamp(56px,6.5vw,110px);height:auto;border-radius:6px;background:#fff;padding:4px;display:block}
+.p-join .t1{font-size:clamp(.8rem,1vw,1.1rem);color:var(--muted)}
+.p-join .t2{font-family:var(--display);font-size:clamp(1.6rem,2.6vw,3rem);letter-spacing:.12em;line-height:1}
+.p-join .t3{font-size:clamp(.7rem,.85vw,1rem);color:var(--muted);max-width:26vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.p-main{flex:1;min-height:0;padding:2.4vh 2.6vw;display:flex;flex-direction:column;gap:2.4vh;overflow:auto}
+
+.points-wrap{display:flex;align-items:center;justify-content:center;gap:4vw}
+.points-big{text-align:center}
+.points-big .n{font-family:var(--display);font-size:clamp(7rem,21vh,16rem);line-height:.82;color:var(--yellow);text-shadow:0 0 50px #ffc93c55;transition:transform .25s}
+.points-big .l{font-family:var(--display);font-size:clamp(1.6rem,4vh,3rem);letter-spacing:.3em;color:var(--muted)}
+.ladder{display:flex;flex-direction:column;gap:.9vh}
+.ladder div{font-family:var(--display);font-size:clamp(1.3rem,3.6vh,2.6rem);width:clamp(70px,6vw,120px);text-align:center;border-radius:10px;padding:.2vh 0;border:2px solid var(--line);color:var(--dim)}
+.ladder div.now{background:var(--yellow);border-color:var(--yellow);color:#1a1300;transform:scale(1.12)}
+.ladder div.past{text-decoration:line-through;opacity:.45}
+.ladder div.future{color:var(--muted)}
+.banner{font-family:var(--display);font-size:clamp(3rem,10vh,7rem);text-align:center;line-height:1;letter-spacing:.03em}
+.banner.red{color:var(--red2)}
+.count{text-align:center;font-size:clamp(1rem,2.4vh,1.6rem);color:var(--muted)}
+.count b{color:var(--text)}
+
+.teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(180px,17vw,300px),1fr));gap:1.4vh 1.2vw}
+.chip{display:flex;align-items:center;gap:.8vw;padding:1.3vh 1vw;border-radius:14px;background:#ffffff0a;border:2px solid #ffffff14;min-width:0}
+.chip .nm{font-weight:700;font-size:clamp(1rem,2.3vh,1.7rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.chip .bd{font-family:var(--display);font-size:clamp(1.3rem,3vh,2.3rem);line-height:1;padding:.3vh .7vw;border-radius:9px;flex:none}
+.chip.wait{opacity:.55}
+.chip.wait .bd{color:var(--dim)}
+.chip.done{background:#ffc93c1c;border-color:var(--yellow)}
+.chip.done .bd{background:var(--yellow);color:#1a1300}
+.chip.fresh{animation:pop .9s ease}
+@keyframes pop{0%{transform:scale(1.18);box-shadow:0 0 0 0 #ffc93caa}60%{transform:scale(.98);box-shadow:0 0 0 22px #ffc93c00}100%{transform:none}}
+
+.answer{text-align:center}
+.answer .k{font-family:var(--display);letter-spacing:.3em;color:var(--muted);font-size:clamp(1.2rem,3vh,2rem)}
+.answer .v{font-family:var(--display);font-size:clamp(3.6rem,12vh,9rem);color:var(--yellow);line-height:.95}
+.results{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(260px,28vw,460px),1fr));gap:1.2vh 1.2vw}
+.res{display:flex;align-items:center;gap:1vw;padding:1.2vh 1vw;border-radius:14px;background:#ffffff0a;border:2px solid #ffffff14;text-align:left;width:100%}
+.res .who{flex:1;min-width:0}
+.res .who .a{font-weight:700;font-size:clamp(1rem,2.2vh,1.5rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res .who .b{font-size:clamp(.95rem,2.1vh,1.4rem);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res .pt{font-family:var(--display);font-size:clamp(1.4rem,3.4vh,2.6rem);min-width:2.2em;text-align:center}
+.res .mk{font-size:clamp(1.4rem,3.4vh,2.4rem);width:1.3em;text-align:center}
+.res.yes{border-color:var(--green);background:#35c97a1f}
+.res.yes .pt{color:var(--green)}
+.res.no{border-color:#e5483b88;background:#e5483b14}
+.res.no .pt{color:var(--dim);text-decoration:line-through}
+.res.unk .pt{color:var(--muted)}
+.nog{text-align:center;color:var(--muted);font-size:clamp(.9rem,2vh,1.3rem)}
+
+.joinview{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:4vw;align-items:center}
+.qrbig{text-align:center}
+.qrbig img{width:min(38vh,30vw);height:auto;background:#fff;padding:14px;border-radius:18px}
+.qrbig .code{font-family:var(--display);font-size:clamp(3rem,9vh,7rem);letter-spacing:.18em;color:var(--yellow);line-height:1;margin-top:2vh}
+.qrbig .url{color:var(--muted);font-size:clamp(.9rem,2vh,1.4rem);word-break:break-all}
+.sec-h{font-family:var(--display);font-size:clamp(1.8rem,5vh,3.4rem);color:var(--yellow);margin:0 0 1.6vh;letter-spacing:.03em}
+.rulesbox{white-space:pre-wrap;font-size:clamp(1.05rem,2.7vh,2rem);line-height:1.5;background:#ffffff0a;border:1px solid #ffffff1a;border-radius:18px;padding:2.4vh 2vw;max-width:1500px;margin:0 auto;width:100%}
+
+.board{display:flex;flex-direction:column;gap:1.1vh;max-width:1400px;margin:0 auto;width:100%}
+.brow{display:grid;grid-template-columns:3.2em minmax(0,1fr) 4em;align-items:center;gap:1vw;font-size:clamp(1rem,2.6vh,1.8rem)}
+.brow .pl{font-family:var(--display);font-size:1.4em;color:var(--muted);text-align:right}
+.brow.top1 .pl{color:var(--yellow)}
+.brow .bar{position:relative;height:2.1em;border-radius:10px;background:#ffffff0a;overflow:hidden}
+.brow .fill{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#2b4bb0,#5a7cf0);border-radius:10px;transition:width .6s}
+.brow.top1 .fill{background:linear-gradient(90deg,#c78f00,var(--yellow))}
+.brow .bn{position:absolute;inset:0;display:flex;align-items:center;padding:0 .8em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brow .sc{font-family:var(--display);font-size:1.5em;text-align:right}
+
+/* control bar */
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 14px;background:#050b1ee6;border-top:1px solid #ffffff1a;font-size:14px}
+.ctl .grp{display:flex;align-items:center;gap:6px}
+.ctl .sep{width:1px;height:26px;background:#ffffff22;margin:0 4px}
+.ctl .btn{padding:.45em .8em;border-radius:8px;font-size:14px}
+.ctl .lv{min-width:2.6em;font-family:var(--display);font-size:20px;padding:.15em .5em}
+.ctl .stat{display:flex;align-items:center;gap:6px;color:var(--muted);white-space:nowrap}
+.ctl input{padding:.45em .7em;border-radius:8px;border:1px solid var(--line);background:var(--bg2);width:220px;font-size:14px;outline:none}
+.ctl input:focus{border-color:var(--yellow)}
+.ctl .right{margin-left:auto}
+.showbar{position:fixed;right:10px;bottom:10px;opacity:.25;font-size:12px;padding:.3em .6em}
+.showbar:hover{opacity:1}
+.warnbar{background:var(--red);color:#fff;padding:8px 16px;font-weight:600;font-size:14px}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.modal{background:var(--bg2);border:1px solid var(--line);border-radius:18px;width:100%;max-width:820px;max-height:92vh;overflow:auto;padding:22px}
+.modal h3{margin:0 0 4px;font-size:1.3rem}
+.modal h4{margin:20px 0 8px;font-size:1rem;color:var(--yellow)}
+.modal label{display:block;font-weight:600;font-size:.9rem;margin:12px 0 6px}
+.tm{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #ffffff12}
+.tm input{flex:1;min-width:0;padding:.45em .7em;border-radius:8px;border:1px solid var(--line);background:var(--bg);outline:none}
+.tm .s{font-family:var(--display);font-size:1.4rem;min-width:2.4em;text-align:right}
+.tm .btn{padding:.35em .6em}
+
+/* ---------- Panel ---------- */
+.panel{max-width:1000px;margin:0 auto;padding:18px 16px 40px}
+.panel h1{font-family:var(--display);color:var(--yellow);font-size:2.4rem;margin:0;line-height:1}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:14px}
+.ptable{width:100%;border-collapse:collapse}
+.ptable th{text-align:left;font-size:.8rem;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line)}
+.ptable td{padding:8px;border-bottom:1px solid #ffffff10;vertical-align:middle}
+.ptable .g{font-weight:700;font-size:1.05rem}
+.ptable .pp{font-family:var(--display);font-size:1.5rem}
+.tg{padding:.3em .6em;border-radius:8px;border:1px solid var(--line);font-weight:700}
+.tg.yes{background:var(--green);border-color:var(--green);color:#03210f}
+.tg.no{background:var(--red);border-color:var(--red);color:#fff}
+
+/* ---------- Player (phone) ---------- */
+.pl{min-height:100%;display:flex;flex-direction:column;max-width:520px;margin:0 auto;padding:0 16px calc(24px + env(safe-area-inset-bottom))}
+.pl-top{display:flex;align-items:center;gap:10px;padding:14px 0 10px}
+.pl-top .tn{font-weight:800;font-size:1.05rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl-top .ts{font-size:.85rem;color:var(--muted)}
+.pl-top .sc{margin-left:auto;text-align:right}
+.pl-top .sc b{font-family:var(--display);font-size:2rem;color:var(--yellow);line-height:1;display:block}
+.tabs{display:flex;gap:6px;background:var(--bg2);border-radius:12px;padding:4px;margin-bottom:16px}
+.tabs button{flex:1;padding:.55em;border-radius:9px;font-weight:600;color:var(--muted)}
+.tabs button.on{background:var(--card2);color:var(--text)}
+.pl-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px}
+.pl-points{text-align:center;padding:6px 0 14px}
+.pl-points .n{font-family:var(--display);font-size:7.5rem;line-height:.85;color:var(--yellow);text-shadow:0 0 30px #ffc93c55}
+.pl-points .l{font-family:var(--display);letter-spacing:.3em;color:var(--muted);font-size:1.3rem}
+.brake{width:100%;padding:1.05em;border-radius:16px;background:var(--red);color:#fff;font-weight:800;font-size:1.15rem;letter-spacing:.02em;box-shadow:0 6px 0 #9c2a20;margin-top:12px}
+.brake:active{transform:translateY(4px);box-shadow:0 2px 0 #9c2a20}
+.brake[disabled]{opacity:.45}
+.msg{text-align:center}
+.msg .big{font-family:var(--display);font-size:2.6rem;line-height:1;margin:6px 0}
+.msg .em{font-size:3rem}
+.locked{background:#ffc93c18;border:2px solid var(--yellow);border-radius:16px;padding:16px;text-align:center;margin-top:12px}
+.locked .gv{font-size:1.5rem;font-weight:800;margin:4px 0;word-break:break-word}
+.err{background:#e5483b26;border:1px solid var(--red);color:#ffd2cd;padding:10px 12px;border-radius:12px;margin-top:12px;font-size:.95rem}
+.tlist{display:flex;flex-direction:column;gap:8px}
+.tlist button{display:flex;justify-content:space-between;align-items:center;padding:.85em 1em;border-radius:12px;background:var(--card2);border:1px solid var(--line);font-weight:700;text-align:left}
+.tlist button span{color:var(--muted);font-weight:500;font-size:.85rem}
+.prules{white-space:pre-wrap;line-height:1.55}
+.pboard .r{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid #ffffff12}
+.pboard .r .p{font-family:var(--display);font-size:1.4rem;width:1.6em;color:var(--muted)}
+.pboard .r .n{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pboard .r .s{font-family:var(--display);font-size:1.6rem}
+.pboard .r.me{background:#ffc93c18;border-radius:10px}
+.linkbtn{color:var(--muted);text-decoration:underline;font-size:.9rem;margin:22px auto 0;display:block}
+.conn{display:flex;align-items:center;gap:6px;justify-content:center;color:var(--muted);font-size:.85rem;margin-top:14px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* =========================================================
+   På spåret – sittning
+   Spelledarens dator är "servern": den kör projektorvyn och tar
+   emot lagens gissningar direkt via WebRTC (PeerJS).
+   ?spel=KOD      → lagens mobilvy
+   #spelledare    → projektorvy (spelledare)
+   #panel         → privat spelledarpanel (öppnas från projektorvyn)
+   &lokal         → testläge: allt i samma webbläsare, utan nätverk
+   ========================================================= */
+const app = document.getElementById('app');
+const params = new URLSearchParams(location.search);
+const LOCAL = params.has('lokal');
+const PEER_PREFIX = 'pasparet-sittning-v1-';
+const HOST_KEY = 'pp-host';
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+const rid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const genCode = () => { const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<5;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; };
+const clock = ts => new Date(ts).toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+
+const DEFAULT_RULES = `Så här spelar ni 🚂
+
+1. Ett lag = en eller flera mobiler. Skanna QR-koden och välj samma lagnamn på allas mobiler.
+2. Vi spelar låtar som ledtrådar till ett hemligt resmål. Ju tidigare ni gissar, desto fler poäng: 10 → 8 → 6 → 4 → 2.
+3. Varje lag får bara EN gissning per resmål. När ni har dragit i nödbromsen går det inte att ändra.
+4. Ni får de poäng som är aktiva i den sekund gissningen kommer fram – inte när ni började skriva.
+5. Rätt svar ger poängen, fel svar ger 0. Inga minuspoäng!
+6. Mindre stavfel godkänns om det tydligt är rätt ort. Spelledarens beslut är slutgiltigt.
+7. Ingen googling – det är fusk, och fusk är tråkigt.`;
+
+/* ---------- generic UI plumbing ---------- */
+let ACT = {}, FORM = {};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if(!el || el.disabled) return;
+  const fn = ACT[el.dataset.act];
+  if(fn){ e.preventDefault(); fn(el.dataset, el); }
+});
+document.addEventListener('submit', e => {
+  const f = e.target.closest('form[data-form]');
+  if(!f) return;
+  e.preventDefault();
+  FORM[f.dataset.form]?.(f);
+});
+/* re-render while keeping what people are typing */
+function paint(html){
+  const keep = {};
+  const act = document.activeElement;
+  let focusKey = null, selS = null, selE = null;
+  app.querySelectorAll('[data-keep]').forEach(el => {
+    keep[el.dataset.keep] = el.value;
+    if(el === act){ focusKey = el.dataset.keep; try{ selS = el.selectionStart; selE = el.selectionEnd; }catch(e){} }
+  });
+  app.innerHTML = html;
+  app.querySelectorAll('[data-keep]').forEach(el => {
+    const k = el.dataset.keep;
+    if(k in keep && !el.hasAttribute('data-fresh')) el.value = keep[k];
+    if(k === focusKey){ el.focus(); try{ el.setSelectionRange(selS, selE); }catch(e){} }
+  });
+}
+const qrCache = {};
+function qrData(text){
+  if(qrCache[text]) return qrCache[text];
+  if(typeof QRCode === 'undefined') return '';
+  try{
+    const div = document.createElement('div');
+    new QRCode(div, {text, width:512, height:512, colorDark:'#0a1430', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M});
+    const cv = div.querySelector('canvas');
+    const url = cv ? cv.toDataURL('image/png') : (div.querySelector('img')?.src || '');
+    if(url) qrCache[text] = url;
+    return url;
+  }catch(e){ return ''; }
+}
+function norm(s){
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+}
+function lev(a, b){
+  const m = a.length, n = b.length; if(!m) return n; if(!n) return m;
+  let prev = Array.from({length:n+1}, (_, i) => i);
+  for(let i=1;i<=m;i++){
+    const cur = [i];
+    for(let j=1;j<=n;j++) cur[j] = Math.min(prev[j]+1, cur[j-1]+1, prev[j-1] + (a[i-1]===b[j-1]?0:1));
+    prev = cur;
+  }
+  return prev[n];
+}
+/* suggestion only – the host can always flip it */
+function looksRight(guess, answer){
+  const g = norm(guess);
+  if(!g) return false;
+  return String(answer||'').split(/[\/,;]| eller /i).map(norm).filter(Boolean).some(a =>
+    g === a || (a.length >= 4 && (g.includes(a))) || lev(g, a) <= Math.max(1, Math.floor(a.length/5)));
+}
+
+/* =========================================================
+   NETWORK
+   ========================================================= */
+function hostNet(code, onMsg, onStatus){
+  const conns = new Map();
+  const api = { conns, broadcast(fn){ for(const c of conns.values()) c.send(fn(c)); } };
+  if(LOCAL){
+    const bc = new BroadcastChannel('pp-net-' + code);
+    bc.onmessage = e => {
+      const {from, to, data} = e.data || {};
+      if(to !== 'host' || !from) return;
+      let c = conns.get(from);
+      if(!c){ c = {key:from, teamId:null, send: d => bc.postMessage({from:'host', to:from, data:d})}; conns.set(from, c); }
+      onMsg(c, data);
+    };
+    setTimeout(() => onStatus('online'), 0);
+    return api;
+  }
+  if(typeof Peer === 'undefined'){ setTimeout(() => onStatus('nolib'), 0); return api; }
+  let peer;
+  const start = () => {
+    peer = new Peer(PEER_PREFIX + code, {debug:1});
+    peer.on('open', () => onStatus('online'));
+    peer.on('connection', conn => {
+      const c = {key: conn.connectionId || rid(), conn, teamId:null,
+        send: d => { try{ if(conn.open) conn.send(d); }catch(e){} }};
+      conn.on('open', () => { conns.set(c.key, c); onStatus('online'); });
+      conn.on('data', d => { conns.set(c.key, c); onMsg(c, d); });
+      const drop = () => { conns.delete(c.key); onStatus('online'); };
+      conn.on('close', drop); conn.on('error', drop);
+    });
+    peer.on('disconnected', () => {
+      onStatus('reconnecting');
+      setTimeout(() => { try{ if(!peer.destroyed) peer.reconnect(); }catch(e){} }, 1500);
+    });
+    peer.on('error', err => {
+      if(err.type === 'unavailable-id'){ onStatus('idtaken'); try{ peer.destroy(); }catch(e){} setTimeout(start, 4000); }
+      else if(['network','server-error','socket-error','socket-closed'].includes(err.type)){
+        onStatus('reconnecting');
+        setTimeout(() => { if(peer.destroyed) start(); else if(peer.disconnected){ try{ peer.reconnect(); }catch(e){} } }, 3000);
+      } else console.warn('peer', err.type, err);
+    });
+  };
+  start();
+  window.addEventListener('beforeunload', () => { try{ peer.destroy(); }catch(e){} });
+  return api;
+}
+
+function playerNet(code, clientId, onMsg, onStatus){
+  if(LOCAL){
+    const bc = new BroadcastChannel('pp-net-' + code);
+    bc.onmessage = e => { if(e.data && e.data.to === clientId) onMsg(e.data.data); };
+    setTimeout(() => onStatus('open'), 50);
+    return { send(d){ bc.postMessage({from:clientId, to:'host', data:d}); return true; } };
+  }
+  if(typeof Peer === 'undefined'){ setTimeout(() => onStatus('nolib'), 0); return { send(){ return false; } }; }
+  let peer = null, conn = null, timer = null;
+  const retry = (ms = 3000) => { clearTimeout(timer); timer = setTimeout(connect, ms); };
+  function connect(){
+    clearTimeout(timer);
+    if(conn && conn.open) return;
+    if(!peer || peer.destroyed){
+      peer = new Peer({debug:1});
+      peer.on('open', dial);
+      peer.on('error', err => {
+        if(err.type === 'peer-unavailable') onStatus('nohost');
+        else onStatus('offline');
+        retry();
+      });
+      peer.on('disconnected', () => setTimeout(() => { try{ if(!peer.destroyed) peer.reconnect(); }catch(e){} }, 1500));
+    } else if(peer.open) dial();
+    else if(peer.disconnected){ try{ peer.reconnect(); }catch(e){} retry(); }
+  }
+  function dial(){
+    if(conn && conn.open) return;
+    onStatus('connecting');
+    const c = conn = peer.connect(PEER_PREFIX + code, {reliable:true});
+    const to = setTimeout(() => { if(!c.open && c === conn){ try{ c.close(); }catch(e){} onStatus('nohost'); retry(); } }, 12000);
+    c.on('open', () => { clearTimeout(to); onStatus('open'); });
+    c.on('data', d => onMsg(d));
+    c.on('close', () => { if(c === conn){ onStatus('offline'); retry(1500); } });
+    c.on('error', () => {});
+  }
+  connect();
+  document.addEventListener('visibilitychange', () => { if(!document.hidden && !(conn && conn.open)) connect(); });
+  window.addEventListener('online', () => connect());
+  return { send(d){ if(conn && conn.open){ try{ conn.send(d); return true; }catch(e){} } return false; } };
+}
+
+/* =========================================================
+   HOST STATE (shared by projector + panel)
+   ========================================================= */
+function newGame(){
+  return { code: genCode(), title: 'På spåret', rules: DEFAULT_RULES, levels: [10,8,6,4,2],
+    levelIdx: 0, phase: 'lobby', round: 0, roundStart: 0, answer: '', answers: {},
+    teams: {}, order: [], guesses: {}, adj: {}, view: 'auto', created: Date.now() };
+}
+function teamScore(S, tid){
+  let s = S.adj[tid] || 0;
+  for(const r of Object.values(S.guesses)) if(r[tid] && r[tid].correct === true) s += r[tid].pts;
+  return s;
+}
+function ranking(S){
+  return S.order.filter(id => S.teams[id]).map(id => ({id, name:S.teams[id].name, score:teamScore(S, id)}))
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name, 'sv'));
+}
+function curPts(S){ return S.levels[Math.min(S.levelIdx, S.levels.length-1)]; }
+function joinUrl(S){
+  const base = location.origin + location.pathname;
+  return base + '?spel=' + S.code + (LOCAL ? '&lokal' : '');
+}
+
+/* commands that change the game – used by projector buttons, keyboard and panel */
+function applyCmd(S, cmd, a = {}){
+  const R = () => (S.guesses[S.round] ||= {});
+  switch(cmd){
+    case 'start': case 'next':
+      S.round += 1; S.phase = 'open'; S.levelIdx = 0; S.answer = ''; S.roundStart = Date.now(); S.view = 'auto'; R(); break;
+    case 'level': if(S.phase === 'open') S.levelIdx = Math.max(0, Math.min(S.levels.length-1, +a.i)); break;
+    case 'lower': if(S.phase === 'open') S.levelIdx = Math.min(S.levels.length-1, S.levelIdx+1); break;
+    case 'raise': if(S.phase === 'open') S.levelIdx = Math.max(0, S.levelIdx-1); break;
+    case 'close': if(S.phase === 'open'){ S.phase = 'closed'; S.view = 'auto'; } break;
+    case 'reopen': if(S.phase === 'closed' || S.phase === 'reveal'){ S.phase = 'open'; S.view = 'auto'; } break;
+    case 'reveal': {
+      const ans = String(a.answer || '').trim().slice(0, 80);
+      if(!ans || S.round < 1) break;
+      S.answer = ans; S.answers[S.round] = ans; S.phase = 'reveal'; S.view = 'auto';
+      for(const g of Object.values(R())) if(g.correct === null || g.auto) { g.correct = looksRight(g.text, ans); g.auto = true; }
+      break;
+    }
+    case 'mark': {
+      const g = (S.guesses[a.round ?? S.round] || {})[a.tid];
+      if(g){ g.correct = a.val === undefined ? !(g.correct === true) : a.val; g.auto = false; }
+      break;
+    }
+    case 'adj': if(S.teams[a.tid]) S.adj[a.tid] = (S.adj[a.tid] || 0) + (+a.d || 0); break;
+    case 'view': S.view = a.v; break;
+    case 'rename': { const n = String(a.name||'').trim().slice(0,30); if(n && S.teams[a.tid]) S.teams[a.tid].name = n; break; }
+    case 'delteam':
+      delete S.teams[a.tid]; S.order = S.order.filter(x => x !== a.tid); delete S.adj[a.tid];
+      for(const r of Object.values(S.guesses)) delete r[a.tid];
+      break;
+    case 'settings':
+      if(a.title !== undefined) S.title = String(a.title).trim().slice(0, 40) || 'På spåret';
+      if(a.rules !== undefined) S.rules = String(a.rules).slice(0, 4000);
+      if(a.levels){ const L = String(a.levels).split(/[^0-9]+/).map(Number).filter(n => n > 0).slice(0, 12); if(L.length) { S.levels = L; S.levelIdx = Math.min(S.levelIdx, L.length-1); } }
+      break;
+    case 'zeroscores': S.guesses = {}; S.adj = {}; S.round = 0; S.phase = 'lobby'; S.answer = ''; S.answers = {}; S.view = 'auto'; break;
+  }
+}
+
+/* =========================================================
+   START SCREEN
+   ========================================================= */
+function Start(){
+  const saved = LS.get(HOST_KEY, null);
+  ACT = {
+    host(){ if(!LS.get(HOST_KEY, null)) LS.set(HOST_KEY, newGame()); location.hash = 'spelledare'; location.reload(); },
+    newhost(){ if(confirm('Starta ett helt nytt spel? Lag och poäng från det gamla spelet försvinner.')){ LS.set(HOST_KEY, newGame()); location.hash = 'spelledare'; location.reload(); } }
+  };
+  FORM = {
+    join(f){
+      const code = f.code.value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+      if(code.length < 4) return;
+      location.href = location.pathname + '?spel=' + code + (LOCAL ? '&lokal' : '');
+    }
+  };
+  paint(`<div class="start"><div class="start-card">
+    <h1 class="logo">${esc(saved?.title || 'På spåret')}<small>SITTNINGSUPPLAGAN</small></h1>
+    <div class="box">
+      <h2>Gå med i spelet</h2>
+      <form data-form="join" class="stack">
+        <input class="field" name="code" placeholder="Spelkod, t.ex. K7QXP" autocomplete="off" autocapitalize="characters" maxlength="8" style="text-transform:uppercase;letter-spacing:.15em;font-weight:700">
+        <button class="btn primary" style="padding:.85em">Gå med</button>
+      </form>
+    </div>
+    <div class="box">
+      <h2>Spelledare</h2>
+      <div class="stack">
+        ${saved ? `<button class="btn" data-act="host">Fortsätt spel ${esc(saved.code)} (${saved.order.length} lag)</button>
+                   <button class="btn ghost" data-act="newhost">Starta nytt spel</button>`
+                : `<button class="btn" data-act="host">Starta nytt spel</button>`}
+      </div>
+    </div>
+  </div></div>`);
+}
+
+/* =========================================================
+   HOST / PROJECTOR
+   ========================================================= */
+function Host(){
+  let S = LS.get(HOST_KEY, null);
+  if(!S){ S = newGame(); LS.set(HOST_KEY, S); }
+  document.title = S.title + ' – Spelledare';
+  let netStatus = 'connecting', barHidden = false, modal = null;
+  const fresh = {};
+  const ctl = new BroadcastChannel('pp-ctl-' + S.code);
+
+  const net = hostNet(S.code, onPlayerMsg, st => { netStatus = st; render(); });
+
+  function connectedTeams(){
+    const set = new Set(); for(const c of net.conns.values()) if(c.teamId) set.add(c.teamId); return set;
+  }
+  function playerState(tid){
+    const team = tid && S.teams[tid] ? S.teams[tid] : null;
+    const R = S.guesses[S.round] || {};
+    const mine = team && R[tid] ? R[tid] : null;
+    return { t:'state', title:S.title, rules:S.rules, phase:S.phase, round:S.round, points:curPts(S),
+      levels:S.levels, levelIdx:S.levelIdx, answer: S.phase === 'reveal' ? S.answer : null,
+      team: team ? {id:tid, name:team.name, score:teamScore(S, tid)} : null,
+      mine: mine ? {text:mine.text, pts:mine.pts, correct: S.phase === 'reveal' ? mine.correct : null} : null,
+      teamNames: S.order.filter(id => S.teams[id]).map(id => S.teams[id].name),
+      board: ranking(S).map(r => ({name:r.name, score:r.score, me:r.id === tid})),
+      guessed: Object.keys(R).length, teamCount: S.order.length };
+  }
+  function commit(){
+    LS.set(HOST_KEY, S);
+    net.broadcast(c => playerState(c.teamId));
+    ctl.postMessage({type:'full', S, online: connectedTeams().size, conns: net.conns.size, netStatus});
+    render();
+  }
+  function cmd(name, args){ applyCmd(S, name, args); if(name === 'delteam') for(const c of net.conns.values()) if(c.teamId === args.tid) c.teamId = null; commit(); }
+
+  function onPlayerMsg(c, m){
+    if(!m || typeof m !== 'object') return;
+    if(m.t === 'hello'){
+      c.teamId = m.teamId && S.teams[m.teamId] ? m.teamId : null;
+      c.send(playerState(c.teamId)); render(); syncPanel(); return;
+    }
+    if(m.t === 'join'){
+      const name = String(m.name || '').trim().replace(/\s+/g,' ').slice(0, 30);
+      if(!name) return;
+      let tid = S.order.find(id => S.teams[id] && S.teams[id].name.toLowerCase() === name.toLowerCase());
+      if(!tid){ tid = 't' + rid(); S.teams[tid] = {name, created:Date.now()}; S.order.push(tid); }
+      c.teamId = tid; c.send({t:'joined', teamId:tid}); commit(); return;
+    }
+    if(m.t === 'leave'){ c.teamId = null; c.send(playerState(null)); render(); syncPanel(); return; }
+    if(m.t === 'guess'){
+      const tid = c.teamId, ack = (ok, reason) => c.send({t:'ack', id:m.id, ok, reason});
+      if(!tid || !S.teams[tid]) return ack(false, 'Ert lag finns inte längre – välj lag igen.');
+      const R = (S.guesses[S.round] ||= {});
+      if(R[tid]){ return R[tid].msgId === m.id ? (ack(true), c.send(playerState(tid))) : (ack(false, 'Ert lag har redan gissat på det här resmålet.'), c.send(playerState(tid))); }
+      if(S.phase !== 'open' || m.round !== S.round) return (ack(false, 'Gissningarna är stängda just nu.'), c.send(playerState(tid)));
+      const text = String(m.text || '').trim().replace(/\s+/g,' ').slice(0, 60);
+      if(!text) return ack(false, 'Skriv en gissning först.');
+      R[tid] = {text, pts:curPts(S), ts:Date.now(), correct:null, msgId:m.id};
+      fresh[tid] = Date.now();
+      ack(true); commit();
+      setTimeout(render, 1000);
+    }
+  }
+  function syncPanel(){ ctl.postMessage({type:'full', S, online: connectedTeams().size, conns: net.conns.size, netStatus}); }
+  ctl.onmessage = e => {
+    const m = e.data || {};
+    if(m.type === 'sync') syncPanel();
+    if(m.type === 'cmd') cmd(m.cmd, m.args || {});
+  };
+
+  /* ---- actions ---- */
+  ACT = {
+    cmd(d){ const args = {...d}; delete args.act; delete args.cmd; cmd(d.cmd, args); },
+    reveal(){ const v = app.querySelector('[data-keep="answer"]')?.value || ''; if(!v.trim()){ app.querySelector('[data-keep="answer"]')?.focus(); return; } cmd('reveal', {answer:v}); const el = app.querySelector('[data-keep="answer"]'); if(el) el.value=''; },
+    hidebar(){ barHidden = true; render(); },
+    showbar(){ barHidden = false; render(); },
+    panel(){ window.open(location.pathname + location.search + '#panel', 'pp-panel', 'width=980,height=820'); },
+    settings(){ modal = 'settings'; render(); },
+    closemodal(){ modal = null; render(); },
+    savesettings(){
+      const m = app.querySelector('.modal');
+      cmd('settings', { title: m.querySelector('[name=title]').value, rules: m.querySelector('[name=rules]').value, levels: m.querySelector('[name=levels]').value });
+      m.querySelectorAll('[data-tname]').forEach(inp => { const t = S.teams[inp.dataset.tname]; if(t && inp.value.trim() && inp.value.trim() !== t.name) applyCmd(S, 'rename', {tid:inp.dataset.tname, name:inp.value}); });
+      modal = null; commit();
+    },
+    delteam(d){ if(confirm(`Ta bort laget "${S.teams[d.tid]?.name}" och dess poäng?`)) cmd('delteam', {tid:d.tid}); },
+    zeroscores(){ if(confirm('Nollställa alla poäng och resmål? Lagen ligger kvar.')) { cmd('zeroscores'); } },
+    newgame(){ if(confirm('Starta ett helt nytt spel med ny kod? Alla lag måste ansluta igen.')){ LS.set(HOST_KEY, newGame()); location.reload(); } },
+    fullscreen(){ if(!document.fullscreenElement) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.(); }
+  };
+  FORM = { answer(){ ACT.reveal(); } };
+  document.addEventListener('keydown', e => {
+    if(e.target.matches('input,textarea') || modal || e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key.toLowerCase();
+    if(k === 'arrowdown' || k === ' '){ e.preventDefault(); if(S.phase === 'open') cmd('lower'); }
+    else if(k === 'arrowup'){ e.preventDefault(); if(S.phase === 'open') cmd('raise'); }
+    else if(k === 's' && S.phase === 'open') cmd('close');
+    else if(k === 'n' && (S.phase === 'reveal' || S.phase === 'lobby')) cmd('next');
+    else if(k === 'h'){ barHidden = !barHidden; render(); }
+    else if(k === 't') cmd('view', {v: S.view === 'scores' ? 'auto' : 'scores'});
+    else if(k === 'r') cmd('view', {v: S.view === 'rules' ? 'auto' : 'rules'});
+    else if(k === 'q') cmd('view', {v: S.view === 'join' ? 'auto' : 'join'});
+    else if(k === 'g') cmd('view', {v:'auto'});
+    else if(k === 'f') ACT.fullscreen();
+  });
+
+  /* ---- views ---- */
+  const teamChips = () => {
+    const R = S.guesses[S.round] || {};
+    const ids = S.order.filter(id => S.teams[id]);
+    if(!ids.length) return `<div class="nog">Inga lag har anslutit ännu.</div>`;
+    return `<div class="teams">${ids.map(id => {
+      const g = R[id];
+      const isFresh = g && fresh[id] && Date.now() - fresh[id] < 1000;
+      return `<div class="chip ${g ? 'done' : 'wait'} ${isFresh ? 'fresh' : ''}"><span class="nm">${esc(S.teams[id].name)}</span><span class="bd">${g ? g.pts + 'P' : '–'}</span></div>`;
+    }).join('')}</div>`;
+  };
+  const ladder = () => `<div class="ladder">${S.levels.map((p, i) =>
+      `<div class="${i === S.levelIdx ? 'now' : i < S.levelIdx ? 'past' : 'future'}">${p}</div>`).join('')}</div>`;
+
+  function viewJoin(){
+    const url = joinUrl(S), qr = qrData(url);
+    const ids = S.order.filter(id => S.teams[id]);
+    return `<div class="joinview">
+      <div class="qrbig">${qr ? `<img src="${qr}" alt="QR-kod för att gå med">` : ''}
+        <div class="code">${esc(S.code)}</div>
+        <div class="url">${esc(url)}</div></div>
+      <div><h2 class="sec-h">Anmälda lag (${ids.length})</h2>
+        ${ids.length ? `<div class="teams">${ids.map(id => `<div class="chip"><span class="nm">${esc(S.teams[id].name)}</span></div>`).join('')}</div>`
+                     : `<div class="nog" style="text-align:left">Skanna QR-koden med mobilen och anmäl ert lag.</div>`}
+      </div></div>`;
+  }
+  function viewRules(){ return `<h2 class="sec-h" style="text-align:center">Regler</h2><div class="rulesbox">${esc(S.rules)}</div>`; }
+  function viewScores(){
+    const r = ranking(S), max = Math.max(1, ...r.map(x => x.score));
+    let place = 0, last = null;
+    return `<h2 class="sec-h" style="text-align:center">Topplista${S.round ? ` efter resmål ${S.round}` : ''}</h2>
+      <div class="board">${r.length ? r.map((x, i) => {
+        if(x.score !== last){ place = i + 1; last = x.score; }
+        return `<div class="brow ${place === 1 && x.score > 0 ? 'top1' : ''}"><div class="pl">${place}</div>
+          <div class="bar"><div class="fill" style="width:${x.score > 0 ? Math.max(2, x.score / max * 100) : 0}%"></div><div class="bn">${esc(x.name)}</div></div>
+          <div class="sc">${x.score}</div></div>`; }).join('') : `<div class="nog">Inga lag ännu.</div>`}</div>`;
+  }
+  function viewGame(){
+    if(S.phase === 'lobby') return viewJoin();
+    const R = S.guesses[S.round] || {};
+    const n = Object.keys(R).length, total = S.order.filter(id => S.teams[id]).length;
+    if(S.phase === 'open') return `
+      <div class="points-wrap"><div class="points-big"><div class="n">${curPts(S)}</div><div class="l">POÄNG</div></div>${ladder()}</div>
+      <div class="count"><b>${n}</b> av <b>${total}</b> lag har dragit i nödbromsen</div>
+      ${teamChips()}`;
+    if(S.phase === 'closed') return `
+      <div class="banner red">Gissningarna är stängda</div>
+      <div class="count"><b>${n}</b> av <b>${total}</b> lag gissade</div>
+      ${teamChips()}`;
+    /* reveal */
+    const ids = S.order.filter(id => S.teams[id] && R[id]).sort((a, b) => R[b].pts - R[a].pts || R[a].ts - R[b].ts);
+    const none = S.order.filter(id => S.teams[id] && !R[id]);
+    return `<div class="answer"><div class="k">RÄTT SVAR</div><div class="v">${esc(S.answer)}</div></div>
+      <div class="results">${ids.map(id => { const g = R[id];
+        const cls = g.correct === true ? 'yes' : g.correct === false ? 'no' : 'unk';
+        return `<button class="res ${cls}" data-act="cmd" data-cmd="mark" data-tid="${id}" title="Klicka för att ändra rätt/fel">
+          <span class="mk">${g.correct === true ? '✅' : g.correct === false ? '❌' : '❔'}</span>
+          <span class="who"><div class="a">${esc(S.teams[id].name)}</div><div class="b">${esc(g.text)}</div></span>
+          <span class="pt">${g.correct === false ? g.pts : '+' + g.pts}</span></button>`; }).join('')}</div>
+      ${none.length ? `<div class="nog">Gissade inte: ${none.map(id => esc(S.teams[id].name)).join(', ')}</div>` : ''}`;
+  }
+
+  function controlBar(){
+    const st = {online:['ok','Online'], connecting:['warn','Startar…'], reconnecting:['warn','Återansluter…'],
+      idtaken:['bad','Spelet är redan öppet i ett annat fönster'], nolib:['bad','Nätverksbiblioteket kunde inte laddas – kolla internet']}[netStatus] || ['warn', netStatus];
+    const online = connectedTeams().size;
+    let mid = '';
+    if(S.phase === 'lobby') mid = `<button class="btn primary" data-act="cmd" data-cmd="start">▶ Starta resmål 1</button>`;
+    else if(S.phase === 'open') mid = `<div class="grp">${S.levels.map((p, i) => `<button class="btn lv ${i === S.levelIdx ? 'on' : ''}" data-act="cmd" data-cmd="level" data-i="${i}">${p}</button>`).join('')}</div>
+        <button class="btn" data-act="cmd" data-cmd="lower" ${S.levelIdx >= S.levels.length-1 ? 'disabled' : ''}>▼ Sänk poäng</button>
+        <button class="btn danger" data-act="cmd" data-cmd="close">🔒 Stäng gissningar</button>`;
+    else if(S.phase === 'closed') mid = `<button class="btn ghost" data-act="cmd" data-cmd="reopen">↺ Öppna igen</button>
+        <form data-form="answer" class="grp"><input data-keep="answer" placeholder="Rätt svar, t.ex. Göteborg" autocomplete="off"><button class="btn primary" data-act="reveal">Visa svar &amp; rätta</button></form>`;
+    else mid = `<span class="muted">Klicka på ett lag för att ändra rätt/fel.</span>
+        <button class="btn ghost" data-act="cmd" data-cmd="reopen">↺ Öppna igen</button>
+        <button class="btn primary" data-act="cmd" data-cmd="next">▶ Nästa resmål</button>`;
+    const v = S.view === 'auto' ? 'auto' : S.view;
+    return `<div class="ctl">
+      <div class="stat"><span class="dot ${st[0]}"></span>${esc(st[1])} · ${online} lag uppkopplade</div><div class="sep"></div>
+      ${mid}
+      <div class="grp right">
+        <button class="btn ${v === 'auto' ? 'on' : ''}" data-act="cmd" data-cmd="view" data-v="auto" title="G">Spel</button>
+        <button class="btn ${v === 'join' ? 'on' : ''}" data-act="cmd" data-cmd="view" data-v="join" title="Q">Anslut</button>
+        <button class="btn ${v === 'rules' ? 'on' : ''}" data-act="cmd" data-cmd="view" data-v="rules" title="R">Regler</button>
+        <button class="btn ${v === 'scores' ? 'on' : ''}" data-act="cmd" data-cmd="view" data-v="scores" title="T">Topplista</button>
+        <div class="sep"></div>
+        <button class="btn" data-act="panel" title="Privat panel med lagens gissningar – öppna på din egen skärm">🕵️ Spelledarpanel</button>
+        <button class="btn" data-act="settings" title="Regler, poängnivåer och lag">⚙️</button>
+        <button class="btn" data-act="fullscreen" title="Helskärm (F)">⛶</button>
+        <button class="btn ghost" data-act="hidebar" title="Dölj (H)">✕</button>
+      </div></div>`;
+  }
+
+  function settingsModal(){
+    return `<div class="modal-bg"><div class="modal">
+      <h3>Inställningar</h3>
+      <div class="muted" style="font-size:.9rem">Tips: allt här syns på projektorn – fixa inställningarna innan gästerna tittar.</div>
+      <label>Spelets namn</label><input class="field" name="title" value="${esc(S.title)}" maxlength="40">
+      <label>Regler (visas på projektorn och i lagens mobiler)</label><textarea class="field" name="rules" rows="11">${esc(S.rules)}</textarea>
+      <label>Poängnivåer, från högst till lägst</label><input class="field" name="levels" value="${esc(S.levels.join(', '))}">
+      <h4>Lag (${S.order.length})</h4>
+      ${S.order.filter(id => S.teams[id]).map(id => `<div class="tm">
+          <input data-tname="${id}" value="${esc(S.teams[id].name)}" maxlength="30">
+          <button class="btn" data-act="cmd" data-cmd="adj" data-tid="${id}" data-d="-1" title="−1 poäng">−1</button>
+          <span class="s">${teamScore(S, id)}</span>
+          <button class="btn" data-act="cmd" data-cmd="adj" data-tid="${id}" data-d="1" title="+1 poäng">+1</button>
+          <button class="btn danger" data-act="delteam" data-tid="${id}" title="Ta bort laget">🗑</button></div>`).join('') || '<div class="muted">Inga lag ännu.</div>'}
+      <div class="row" style="margin-top:20px;flex-wrap:wrap">
+        <button class="btn primary" data-act="savesettings">Spara</button>
+        <button class="btn" data-act="closemodal">Stäng</button>
+        <span style="flex:1"></span>
+        <button class="btn ghost" data-act="zeroscores">Nollställ poäng</button>
+        <button class="btn danger" data-act="newgame">Nytt spel (ny kod)</button>
+      </div></div></div>`;
+  }
+
+  function render(){
+    const url = joinUrl(S), qr = qrData(url);
+    const v = S.view === 'auto' ? 'game' : S.view;
+    const showSmallJoin = !(v === 'join' || (v === 'game' && S.phase === 'lobby'));
+    const body = v === 'join' ? viewJoin() : v === 'rules' ? viewRules() : v === 'scores' ? viewScores() : viewGame();
+    // keep modal inputs if open
+    const mEl = app.querySelector('.modal');
+    const mVals = mEl ? Object.fromEntries([...mEl.querySelectorAll('input,textarea')].map(el => [el.name || el.dataset.tname, el.value])) : null;
+    paint(`${location.protocol === 'file:' && !LOCAL ? `<div class="warnbar">Sidan är öppnad som en fil på datorn – mobilerna kan inte nå den. Lägg upp filen på nätet först (se instruktionerna).</div>` : ''}
+      <div class="proj">
+        <div class="p-head">
+          <div class="p-title">🚂 ${esc(S.title)}</div>
+          ${S.round ? `<div class="p-round">RESMÅL ${S.round}</div>` : ''}
+          ${showSmallJoin ? `<div class="p-join">${qr ? `<img src="${qr}" alt="">` : ''}<div><div class="t1">Gå med · kod</div><div class="t2">${esc(S.code)}</div><div class="t3">${esc(url.replace(/^https?:\/\//,''))}</div></div></div>` : ''}
+        </div>
+        <div class="p-main">${body}</div>
+        ${barHidden ? '' : controlBar()}
+      </div>
+      ${barHidden ? `<button class="btn showbar" data-act="showbar">Visa kontroller (H)</button>` : ''}
+      ${modal === 'settings' ? settingsModal() : ''}`);
+    if(mVals){ const m2 = app.querySelector('.modal'); if(m2) m2.querySelectorAll('input,textarea').forEach(el => { const k = el.name || el.dataset.tname; if(k in mVals && el.dataset.tname === undefined) el.value = mVals[k]; else if(k in mVals) el.value = mVals[k]; }); }
+  }
+  // the panel's "adj" from within the modal should keep the modal open
+  render(); commit();
+  setInterval(() => { if(Object.values(fresh).some(t => Date.now() - t < 1500)) render(); }, 1000);
+}
+
+/* =========================================================
+   PRIVATE HOST PANEL  (second window on the host's own screen)
+   ========================================================= */
+function Panel(){
+  const saved = LS.get(HOST_KEY, null);
+  if(!saved){ paint(`<div class="panel"><h1>Spelledarpanel</h1><p class="muted">Inget spel hittades. Öppna projektorvyn först.</p></div>`); return; }
+  const ctl = new BroadcastChannel('pp-ctl-' + saved.code);
+  let S = saved, info = {online:0, conns:0, netStatus:'?'}, last = 0, viewRound = null;
+  document.title = 'Spelledarpanel – ' + S.title;
+  ctl.onmessage = e => { const m = e.data || {}; if(m.type === 'full'){ S = m.S; info = m; last = Date.now(); render(); } };
+  const send = (cmd, args) => ctl.postMessage({type:'cmd', cmd, args});
+  ctl.postMessage({type:'sync'});
+  setInterval(() => { if(Date.now() - last > 4000) ctl.postMessage({type:'sync'}); render(); }, 3000);
+
+  ACT = {
+    cmd(d){ const a = {...d}; delete a.act; delete a.cmd; if(a.round !== undefined) a.round = +a.round; if(a.val !== undefined) a.val = a.val === 'true'; send(d.cmd, a); },
+    reveal(){ const el = app.querySelector('[data-keep="panswer"]'); const v = el?.value || ''; if(!v.trim()) return el?.focus(); send('reveal', {answer:v}); el.value=''; },
+    round(d){ viewRound = +d.r; render(); }
+  };
+  FORM = { panswer(){ ACT.reveal(); } };
+
+  function render(){
+    const alive = Date.now() - last < 6000;
+    const rnd = viewRound && viewRound <= S.round ? viewRound : S.round;
+    const R = S.guesses[rnd] || {};
+    const ids = S.order.filter(id => S.teams[id]);
+    const rows = ids.map(id => ({id, g:R[id]})).sort((a, b) => (a.g ? 0 : 1) - (b.g ? 0 : 1) || (a.g && b.g ? a.g.ts - b.g.ts : 0));
+    const start = rnd === S.round ? S.roundStart : 0;
+    const phaseTxt = {lobby:'Väntar på start', open:'Gissningar öppna', closed:'Stängt', reveal:'Svaret visas'}[S.phase];
+    let ctrl = '';
+    if(S.phase === 'lobby') ctrl = `<button class="btn primary" data-act="cmd" data-cmd="start">▶ Starta resmål 1</button>`;
+    else if(S.phase === 'open') ctrl = `${S.levels.map((p, i) => `<button class="btn lv ${i === S.levelIdx ? 'on' : ''}" data-act="cmd" data-cmd="level" data-i="${i}" style="font-family:var(--display);font-size:1.3rem;padding:.2em .6em">${p}</button>`).join('')}
+      <button class="btn" data-act="cmd" data-cmd="lower">▼ Sänk</button><button class="btn danger" data-act="cmd" data-cmd="close">🔒 Stäng</button>`;
+    else if(S.phase === 'closed') ctrl = `<button class="btn ghost" data-act="cmd" data-cmd="reopen">↺ Öppna igen</button>`;
+    else ctrl = `<button class="btn primary" data-act="cmd" data-cmd="next">▶ Nästa resmål</button>`;
+    paint(`<div class="panel">
+      <div class="row" style="flex-wrap:wrap"><h1>Spelledarpanel</h1><span style="flex:1"></span>
+        <span class="muted"><span class="dot ${alive ? 'ok' : 'bad'}"></span> ${alive ? `Kopplad till projektorvyn · ${info.online} lag uppkopplade` : 'Ingen kontakt – är projektorvyn öppen i samma webbläsare?'}</span></div>
+      <div class="muted" style="margin-top:6px">Bara du ser det här fönstret. Ha det på din egen skärm, inte projektorn.</div>
+      <div class="pcard"><div class="row" style="flex-wrap:wrap;gap:8px">
+        <b>Resmål ${S.round || '–'}</b> · <span class="muted">${phaseTxt}${S.phase === 'open' ? ` · aktiva poäng: <b style="color:var(--yellow)">${curPts(S)}</b>` : ''}</span>
+        <span style="flex:1"></span>${ctrl}</div>
+        ${S.phase !== 'lobby' && S.round ? `<form data-form="panswer" class="row" style="margin-top:12px">
+          <input class="field" data-keep="panswer" placeholder="${S.phase === 'reveal' ? 'Ändra rätt svar…' : 'Rätt svar – stänger gissningarna och visar svaret på projektorn'}" autocomplete="off">
+          <button class="btn primary" data-act="reveal">Visa svar</button></form>` : ''}
+      </div>
+      <div class="pcard">
+        <div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:8px"><b>Gissningar</b><span style="flex:1"></span>
+          ${Array.from({length:S.round}, (_, i) => i + 1).map(r => `<button class="btn ${r === rnd ? 'on' : ''}" style="padding:.3em .7em" data-act="round" data-r="${r}">${r}</button>`).join('')}</div>
+        ${S.answers?.[rnd] ? `<div class="muted" style="margin-bottom:8px">Rätt svar: <b style="color:var(--text)">${esc(S.answers[rnd])}</b></div>` : ''}
+        <table class="ptable"><thead><tr><th>Lag</th><th>Gissning</th><th>Poäng</th><th>Tid</th><th>Rätta</th><th style="text-align:right">Totalt</th></tr></thead><tbody>
+        ${rows.map(({id, g}) => `<tr>
+          <td>${esc(S.teams[id].name)}</td>
+          <td class="g">${g ? esc(g.text) : '<span class="muted">–</span>'}</td>
+          <td class="pp">${g ? g.pts : ''}</td>
+          <td class="muted">${g ? clock(g.ts) + (start ? ` <small>(+${Math.round((g.ts - start)/1000)} s)</small>` : '') : ''}</td>
+          <td>${g ? `<button class="tg ${g.correct === true ? 'yes' : ''}" data-act="cmd" data-cmd="mark" data-tid="${id}" data-round="${rnd}" data-val="true">✓</button>
+                     <button class="tg ${g.correct === false ? 'no' : ''}" data-act="cmd" data-cmd="mark" data-tid="${id}" data-round="${rnd}" data-val="false">✗</button>` : ''}</td>
+          <td style="text-align:right;white-space:nowrap">
+            <button class="tg" data-act="cmd" data-cmd="adj" data-tid="${id}" data-d="-1">−</button>
+            <b class="pp" style="display:inline-block;min-width:2em;text-align:center">${teamScore(S, id)}</b>
+            <button class="tg" data-act="cmd" data-cmd="adj" data-tid="${id}" data-d="1">+</button></td></tr>`).join('') || `<tr><td colspan="6" class="muted">Inga lag ännu.</td></tr>`}
+        </tbody></table>
+        <div class="muted" style="font-size:.85rem;margin-top:10px">Rätt/fel som du sätter här innan svaret visas syns först när du trycker "Visa svar". ± ändrar lagets totalpoäng direkt (t.ex. bonusfrågor).</div>
+      </div></div>`);
+  }
+  render();
+}
+
+/* =========================================================
+   PLAYER (phone)
+   ========================================================= */
+function Player(code){
+  const key = 'pp-player-' + code + (LOCAL ? (params.get('pid') || '') : '');
+  const me = LS.get(key, null) || {clientId: rid(), teamId: null};
+  LS.set(key, me);
+  let st = null, status = 'connecting', tab = 'spel', pending = null, confirming = false, error = '', joining = false;
+
+  const net = playerNet(code, me.clientId, onMsg, s => {
+    status = s;
+    if(s === 'open'){
+      net.send({t:'hello', clientId:me.clientId, teamId:me.teamId});
+      if(pending) setTimeout(() => net.send(pending), 300);
+    }
+    render();
+  });
+  function onMsg(m){
+    if(!m || typeof m !== 'object') return;
+    if(m.t === 'state'){
+      const prevRound = st?.round;
+      st = m;
+      if(!m.team && me.teamId && !joining){ me.teamId = null; LS.set(key, me); }
+      if(prevRound !== undefined && prevRound !== m.round){ confirming = false; error = ''; tab = 'spel'; }
+      if(m.phase !== 'open') confirming = false;
+      document.title = (m.team ? m.team.name + ' – ' : '') + m.title;
+    }
+    if(m.t === 'joined'){ me.teamId = m.teamId; joining = false; LS.set(key, me); }
+    if(m.t === 'ack' && pending && m.id === pending.id){ pending = null; error = m.ok ? '' : (m.reason || 'Gissningen gick inte igenom.'); if(m.ok){ const el = app.querySelector('[data-keep="guess"]'); if(el) el.value=''; } }
+    render();
+  }
+  ACT = {
+    pickteam(d){ joining = true; net.send({t:'join', name:d.name}); render(); },
+    tab(d){ tab = d.t; render(); },
+    brake(){
+      const v = (app.querySelector('[data-keep="guess"]')?.value || '').trim();
+      if(!v){ error = 'Skriv in er gissning först.'; render(); app.querySelector('[data-keep="guess"]')?.focus(); return; }
+      error = ''; confirming = true; render();
+    },
+    confirm(){
+      const v = (app.querySelector('[data-keep="guess"]')?.value || '').trim();
+      if(!v || !st) return;
+      pending = {t:'guess', id:rid(), round:st.round, text:v};
+      confirming = false;
+      if(!net.send(pending)) error = 'Ingen anslutning just nu – gissningen skickas så fort mobilen är uppkopplad igen.';
+      render();
+    },
+    cancel(){ confirming = false; render(); },
+    switchteam(){
+      if(!confirm('Byta lag på den här mobilen?')) return;
+      me.teamId = null; LS.set(key, me); net.send({t:'leave'}); render();
+    }
+  };
+  FORM = {
+    newteam(f){ const n = f.name.value.trim(); if(!n) return; joining = true; net.send({t:'join', name:n}); render(); },
+    guess(){ confirming ? ACT.confirm() : ACT.brake(); }
+  };
+
+  const connLine = () => {
+    const s = {open:['ok','Ansluten'], connecting:['warn','Ansluter…'], nohost:['warn','Hittar inte spelet – väntar på spelledaren…'],
+      offline:['bad','Tappade anslutningen – försöker igen…'], nolib:['bad','Kunde inte ladda sidan helt – kolla internet och ladda om']}[status] || ['warn', status];
+    return `<div class="conn"><span class="dot ${s[0]}"></span>${esc(s[1])} · spel ${esc(code)}</div>`;
+  };
+
+  function gameCard(){
+    const m = st.mine;
+    if(st.phase === 'lobby') return `<div class="pl-card msg"><div class="em">🚂</div><div class="big">Ni är med!</div>
+      <p class="muted">Väntar på att första resmålet ska börja. Läs gärna reglerna under fliken <b>Regler</b> så länge.</p></div>`;
+    if(st.phase === 'open'){
+      if(m) return `<div class="pl-card"><div class="pl-points"><div class="n" style="font-size:4rem;color:var(--muted);text-shadow:none">${st.points}</div><div class="l">AKTIVA POÄNG NU</div></div>
+        <div class="locked"><div class="muted">Ni har dragit i nödbromsen! 🛑</div><div class="gv">${esc(m.text)}</div><div>på <b style="color:var(--yellow)">${m.pts} poäng</b></div></div>
+        <p class="muted" style="text-align:center;margin-bottom:0">Svaret avslöjas när resmålet är slut.</p></div>`;
+      return `<div class="pl-card">
+        <div class="pl-points"><div class="n">${st.points}</div><div class="l">POÄNG OM NI GISSAR NU</div></div>
+        <form data-form="guess">
+          <input class="field" data-keep="guess" placeholder="Var är vi på väg?" maxlength="60" autocomplete="off" ${pending ? 'disabled' : ''} style="font-size:1.2rem;text-align:center;font-weight:700">
+          ${pending ? `<button class="brake" disabled type="button">Skickar…</button>`
+            : confirming ? `<button class="brake" data-act="confirm" type="button">Ja, skicka för ${st.points} poäng!</button>
+                <button class="btn ghost" style="width:100%;margin-top:10px" data-act="cancel" type="button">Ångra</button>
+                <p class="muted" style="text-align:center;font-size:.85rem;margin:8px 0 0">Ni kan bara gissa en gång. Poängen som gäller är den som är aktiv när gissningen kommer fram.</p>`
+            : `<button class="brake" data-act="brake" type="button">🛑 DRA I NÖDBROMSEN</button>`}
+        </form>${error ? `<div class="err">${esc(error)}</div>` : ''}</div>`;
+    }
+    if(st.phase === 'closed') return `<div class="pl-card msg"><div class="em">🔒</div><div class="big">Gissningarna är stängda</div>
+      ${m ? `<div class="locked"><div class="muted">Er gissning</div><div class="gv">${esc(m.text)}</div><div>på <b style="color:var(--yellow)">${m.pts} poäng</b></div></div>` : `<p class="muted">Ni hann inte gissa på det här resmålet.</p>`}
+      ${error ? `<div class="err">${esc(error)}</div>` : ''}</div>`;
+    /* reveal */
+    return `<div class="pl-card msg"><div class="muted">Rätt svar</div><div class="big" style="color:var(--yellow);font-size:3.2rem">${esc(st.answer)}</div>
+      ${m ? (m.correct === true ? `<div class="em">🎉</div><div class="big" style="color:var(--green)">+${m.pts} poäng!</div><p class="muted">Ni gissade ${esc(m.text)}.</p>`
+            : m.correct === false ? `<div class="em">😬</div><div class="big">Tyvärr fel</div><p class="muted">Ni gissade ${esc(m.text)}.</p>`
+            : `<p class="muted">Ni gissade ${esc(m.text)} – rättas just nu…</p>`)
+          : `<p class="muted">Ni gissade inte den här gången.</p>`}
+      <p class="muted" style="font-size:.9rem">Nästa resmål börjar snart.</p></div>`;
+  }
+
+  function render(){
+    if(!st){
+      paint(`<div class="pl"><div style="flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center">
+        <h1 class="logo" style="font-size:4rem">På spåret</h1><p class="muted">Ansluter till spelet…</p>${connLine()}</div></div>`);
+      return;
+    }
+    if(!st.team){
+      paint(`<div class="pl"><div style="padding-top:28px;text-align:center"><h1 class="logo" style="font-size:3.6rem">${esc(st.title)}</h1></div>
+        <div class="pl-card" style="margin-top:18px">
+          <h2 style="margin:0 0 6px;font-size:1.2rem">Vilket lag är ni?</h2>
+          <p class="muted" style="margin:0 0 14px;font-size:.92rem">Flera mobiler i samma lag? Välj samma lag på allas mobiler – ni delar då en gissning per resmål.</p>
+          ${st.teamNames.length ? `<div class="tlist">${st.teamNames.map(n => `<button data-act="pickteam" data-name="${esc(n)}" ${joining ? 'disabled' : ''}>${esc(n)} <span>Gå med →</span></button>`).join('')}</div>
+            <div class="muted" style="text-align:center;margin:16px 0 10px;font-size:.9rem">eller skapa ett nytt lag</div>` : ''}
+          <form data-form="newteam" class="stack">
+            <input class="field" name="name" data-keep="teamname" placeholder="Lagnamn, t.ex. Spåretälskare" maxlength="30" autocomplete="off">
+            <button class="btn primary" style="padding:.85em" ${joining ? 'disabled' : ''}>${joining ? 'Ansluter…' : 'Skapa lag'}</button>
+          </form>
+        </div>
+        <details style="margin-top:16px" class="pl-card"><summary style="font-weight:700;cursor:pointer">Regler</summary><div class="prules" style="margin-top:12px">${esc(st.rules)}</div></details>
+        ${connLine()}</div>`);
+      return;
+    }
+    let body;
+    if(tab === 'regler') body = `<div class="pl-card prules">${esc(st.rules)}</div>`;
+    else if(tab === 'lista'){
+      let place = 0, last = null;
+      body = `<div class="pl-card pboard">${st.board.map((r, i) => { if(r.score !== last){ place = i + 1; last = r.score; }
+        return `<div class="r ${r.me ? 'me' : ''}"><span class="p">${place}</span><span class="n">${esc(r.name)}</span><span class="s">${r.score}</span></div>`; }).join('')}</div>`;
+    } else body = gameCard();
+    paint(`<div class="pl">
+      <div class="pl-top"><div style="min-width:0"><div class="tn">${esc(st.team.name)}</div><div class="ts">${st.round ? 'Resmål ' + st.round : 'Inte startat än'}</div></div>
+        <div class="sc"><b>${st.team.score}</b><span class="ts">poäng</span></div></div>
+      <div class="tabs"><button class="${tab === 'spel' ? 'on' : ''}" data-act="tab" data-t="spel">Spel</button>
+        <button class="${tab === 'regler' ? 'on' : ''}" data-act="tab" data-t="regler">Regler</button>
+        <button class="${tab === 'lista' ? 'on' : ''}" data-act="tab" data-t="lista">Topplista</button></div>
+      ${body}
+      <button class="linkbtn" data-act="switchteam">Byt lag</button>
+      ${connLine()}</div>`);
+  }
+  render();
+}
+
+/* ---------- router ---------- */
+const code = (params.get('spel') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+if(code) Player(code);
+else if(location.hash === '#spelledare') Host();
+else if(location.hash === '#panel') Panel();
+else Start();
+</script>
+</body>
+</html>
