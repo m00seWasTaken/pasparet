@@ -212,6 +212,22 @@ textarea.field{resize:vertical;line-height:1.45}
    #panel         → privat spelledarpanel (öppnas från projektorvyn)
    &lokal         → testläge: allt i samma webbläsare, utan nätverk
    ========================================================= */
+/* ---------------------------------------------------------
+   RELÄSERVER (TURN) – behövs för att mobiler på 4G/5G och andra
+   nätverk ska kunna nå spelledarens dator.
+   Uppgifterna kommer från Metered (TURN Server → Credentials).
+   --------------------------------------------------------- */
+const TURN_USER = 'eef23a8a4b638c99acbb1e95';
+const TURN_PASS = 'ww8G7+adJsypbDhu';
+const TURN_ICE = (TURN_USER && TURN_PASS) ? [
+  { urls: 'stun:stun.relay.metered.ca:80' },
+  { urls: 'turn:standard.relay.metered.ca:80', username: TURN_USER, credential: TURN_PASS },
+  { urls: 'turn:standard.relay.metered.ca:80?transport=tcp', username: TURN_USER, credential: TURN_PASS },
+  { urls: 'turn:standard.relay.metered.ca:443', username: TURN_USER, credential: TURN_PASS },
+  { urls: 'turns:standard.relay.metered.ca:443?transport=tcp', username: TURN_USER, credential: TURN_PASS },
+] : null;
+/* --------------------------------------------------------- */
+
 const app = document.getElementById('app');
 const params = new URLSearchParams(location.search);
 const LOCAL = params.has('lokal');
@@ -304,6 +320,17 @@ function looksRight(guess, answer){
 /* =========================================================
    NETWORK
    ========================================================= */
+let iceP = null, relayState = 'off';   // off | on | failed
+function getIce(){
+  if(iceP) return iceP;
+  iceP = (async () => {
+    if(!TURN_ICE) return null;
+    relayState = 'on';
+    return [{urls:'stun:stun.l.google.com:19302'}, ...TURN_ICE];
+  })();
+  return iceP;
+}
+function peerOpts(ice){ const o = {debug:1}; if(ice) o.config = {iceServers: ice, sdpSemantics:'unified-plan'}; return o; }
 function hostNet(code, onMsg, onStatus){
   const conns = new Map();
   const api = { conns, broadcast(fn){ for(const c of conns.values()) c.send(fn(c)); } };
@@ -321,8 +348,9 @@ function hostNet(code, onMsg, onStatus){
   }
   if(typeof Peer === 'undefined'){ setTimeout(() => onStatus('nolib'), 0); return api; }
   let peer;
-  const start = () => {
-    peer = new Peer(PEER_PREFIX + code, {debug:1});
+  const start = async () => {
+    const ice = await getIce();
+    peer = new Peer(PEER_PREFIX + code, peerOpts(ice));
     peer.on('open', () => onStatus('online'));
     peer.on('connection', conn => {
       const c = {key: conn.connectionId || rid(), conn, teamId:null,
@@ -357,13 +385,18 @@ function playerNet(code, clientId, onMsg, onStatus){
     return { send(d){ bc.postMessage({from:clientId, to:'host', data:d}); return true; } };
   }
   if(typeof Peer === 'undefined'){ setTimeout(() => onStatus('nolib'), 0); return { send(){ return false; } }; }
-  let peer = null, conn = null, timer = null;
+  let peer = null, conn = null, timer = null, busy = false;
   const retry = (ms = 3000) => { clearTimeout(timer); timer = setTimeout(connect, ms); };
-  function connect(){
+  async function connect(){
     clearTimeout(timer);
     if(conn && conn.open) return;
     if(!peer || peer.destroyed){
-      peer = new Peer({debug:1});
+      if(busy) return;
+      busy = true;
+      const ice = await getIce();
+      busy = false;
+      if(peer && !peer.destroyed) return;
+      peer = new Peer(peerOpts(ice));
       peer.on('open', dial);
       peer.on('error', err => {
         if(err.type === 'peer-unavailable') onStatus('nohost');
@@ -673,7 +706,9 @@ function Host(){
         <button class="btn primary" data-act="cmd" data-cmd="next">▶ Nästa resmål</button>`;
     const v = S.view === 'auto' ? 'auto' : S.view;
     return `<div class="ctl">
-      <div class="stat"><span class="dot ${st[0]}"></span>${esc(st[1])} · ${online} lag uppkopplade</div><div class="sep"></div>
+      <div class="stat"><span class="dot ${st[0]}"></span>${esc(st[1])} · ${online} lag uppkopplade</div>
+      <div class="stat" title="Reläservern gör att mobiler på 4G/5G och andra nät kan ansluta">${LOCAL ? '' : relayState === 'on' ? '<span class="dot ok"></span>Relä på'
+        : '<span class="dot bad"></span>Relä saknas – bara samma wifi funkar säkert'}</div><div class="sep"></div>
       ${mid}
       <div class="grp right">
         <button class="btn ${v === 'auto' ? 'on' : ''}" data-act="cmd" data-cmd="view" data-v="auto" title="G">Spel</button>
